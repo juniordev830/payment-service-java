@@ -23,16 +23,13 @@ Enterprise Payment Processing Microservice built with Java 17 and Spring Boot pa
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/payment-service-java.git
+git clone https://github.com/juniordev830/payment-service-java.git
 
 # Navigate to project
 cd payment-service-java
 
 # Build with Maven
-mvn clean package
-
-# Run application
-java -jar target/payment-service-java-1.0.0.jar
+mvn clean test
 ```
 
 ## 📜 License
