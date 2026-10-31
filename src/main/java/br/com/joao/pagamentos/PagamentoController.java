@@ -12,4 +12,9 @@ public class PagamentoController {
     public String listar() {
         return "API de pagamentos funcionando!";
     }
+
+    @GetMapping("/status")
+    public String status() {
+        return "Microsservico de pagamentos funcionando!";
+    }
 }
