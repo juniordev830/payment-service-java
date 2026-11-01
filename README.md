@@ -1,37 +1,63 @@
 # Payment Service Java
 
-Enterprise Payment Processing Microservice built with Java 17 and Spring Boot pattern concepts. Demonstrates robust transaction handoff and solid OOP principles.
+Projeto de portfólio em Java 17 com Spring Boot para estudar a estrutura de um serviço relacionado a pagamentos. O repositório inclui configuração Maven, persistência com Spring Data JPA, validação e banco H2 para desenvolvimento/testes.
 
-## 🚀 Features
+> Este projeto é demonstrativo. Não processe pagamentos reais nem armazene dados de cartão sem uma arquitetura, provedor e revisão de segurança apropriados.
 
-- **Java 17 & Spring Boot architecture**: Clean layered service implementation.
-- **Payment Processing Pipeline**: Validates, processes, and audits transaction flow.
-- **Enterprise Design Patterns**: DTOs, Services, and Dependency Injection setup.
+## Tecnologias
 
-## 🛠️ Tech Stack
+- Java 17
+- Spring Boot
+- Maven Wrapper
+- Spring Data JPA
+- Bean Validation
+- H2 para desenvolvimento/testes
 
-- **Language**: Java 17+
-- **Build Tool**: Maven
+## Requisitos
 
-## 📦 Getting Started
+- JDK 17
+- O Maven Wrapper incluído no repositório
 
-### Prerequisites
-- JDK >= 17
-- Maven >= 3.8
+## Compilar e testar
 
-### Building and Running
+Linux/macOS:
 
 ```bash
-# Clone repository
-git clone https://github.com/juniordev830/payment-service-java.git
-
-# Navigate to project
-cd payment-service-java
-
-# Build with Maven
-mvn clean test
+./mvnw test
+./mvnw package
 ```
 
-## 📜 License
+Windows:
 
-This project is licensed under the MIT License.
+```powershell
+.\mvnw.cmd test
+.\mvnw.cmd package
+```
+
+Para iniciar a aplicação, após conferir as configurações e o ponto de entrada em `src/`:
+
+```bash
+./mvnw spring-boot:run
+```
+
+## Organização
+
+- `pom.xml`: dependências, versão Java e plugins.
+- `mvnw` / `mvnw.cmd`: wrapper para executar Maven sem exigir instalação global.
+- `src/main`: implementação da aplicação.
+- `src/test`: testes.
+
+## Segurança e limites
+
+- Use dados fictícios em testes.
+- Nunca coloque segredos em arquivos versionados.
+- Valide valores monetários, moeda, idempotência e transições de estado antes de evoluir o projeto.
+- Um sistema de pagamento real precisa de autenticação, autorização, auditoria, tratamento de falhas e integração segura com um provedor de pagamentos.
+
+## Próximas melhorias
+
+- Documentar os endpoints efetivamente implementados.
+- Adicionar testes de integração e validação de regras de domínio.
+- Definir uma estratégia explícita para idempotência e estados de pagamento.
+
+Projeto em desenvolvimento.
