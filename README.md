@@ -2,7 +2,7 @@
 
 Microsserviço demonstrativo para estudo de desenvolvimento backend com Java e Spring Boot. O projeto implementa uma API REST inicial para registrar e consultar pagamentos em banco H2, com persistência via Spring Data JPA e validação de entrada.
 
-> **Aviso:** este é um projeto de portfólio, não um sistema de pagamentos pronto para produção. Não movimenta dinheiro nem se integra a adquirentes ou gateways reais. Não envie dados de cartão ou informações financeiras reais.
+ > **Aviso:** este é um projeto de portfólio, não um sistema de pagamentos pronto para produção. Não movimenta dinheiro nem se integra a adquirentes ou gateways reais. Não envie dados de cartão ou informações financeiras reais.\n\n## Limites de segurança e acesso\n\nA API ainda **não implementa autenticação nem autorização**. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
 
 ## Tecnologias
 
