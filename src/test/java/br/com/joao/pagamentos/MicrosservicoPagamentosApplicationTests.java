@@ -40,7 +40,7 @@ class MicrosservicoPagamentosApplicationTests {
     void deveNormalizarMoedaEIgnorarStatusEnviadoPeloCliente() throws Exception {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"valor\":49.90,")
+                        .content("{\"valor\":49.90,\"moeda\":\"brl\",\"status\":\"APROVADO\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.moeda").value("BRL"))
                 .andExpect(jsonPath("$.status").value("PENDENTE"));
@@ -50,7 +50,7 @@ class MicrosservicoPagamentosApplicationTests {
     void deveRejeitarMoedaForaDoFormatoDeTresLetras() throws Exception {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"valor\":49.90,")
+                        .content("{\"valor\":49.90,\"moeda\":\"BRL123\"}"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -111,7 +111,7 @@ class MicrosservicoPagamentosApplicationTests {
     void deveRetornarErroEstruturadoQuandoMoedaForInvalida() throws Exception {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"valor\":49.90,")
+                        .content("{\"valor\":49.90,\"moeda\":\"BRL123\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.moeda").exists());
     }
@@ -120,7 +120,7 @@ class MicrosservicoPagamentosApplicationTests {
     void deveRetornarErroEstruturadoParaJsonMalformado() throws Exception {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"valor\":49.90,")
+                        .content("{\"valor\":49.90,"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("O corpo da requisição é inválido"))
                 .andExpect(jsonPath("$.errors.body").value("JSON inválido ou incompleto"));
