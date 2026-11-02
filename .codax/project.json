@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "project_kind": "Microsserviço demonstrativo Spring Boot",
+  "entry_points": [
+    "src/main/java/br/com/joao/pagamentos/PagamentoController.java",
+    "src/main/java/br/com/joao/pagamentos/Pagamento.java"
+  ],
+  "test_commands": [
+    "bash ./mvnw --batch-mode test"
+  ],
+  "review_focus": [
+    "Validação de valores e estados do pagamento",
+    "Evitar confusão entre simulação e pagamentos reais"
+  ]
+}
