@@ -56,8 +56,11 @@ Por padrão, a aplicação inicia em `http://localhost:8080`.
 |---|---|---|
 | `GET` | `/api/pagamentos/status` | Verifica se o endpoint está respondendo |
 | `GET` | `/api/pagamentos?page=0&size=20` | Lista pagamentos por página (página a partir de 0; tamanho de 1 a 50; máximo de 100.000 páginas) |
+| `GET` | `/api/pagamentos?status=PENDENTE&page=0&size=20` | Filtra por status e mantém a mesma paginação e ordenação |
 | `GET` | `/api/pagamentos/{id}` | Consulta um pagamento por ID |
 | `POST` | `/api/pagamentos` | Registra um pagamento com status inicial `PENDENTE` |
+
+O parâmetro opcional `status` aceita `PENDENTE`, `APROVADO`, `RECUSADO` ou `CANCELADO`, com letras maiúsculas. Um valor desconhecido retorna HTTP `400 Bad Request`. O filtro usa a consulta paginada no banco; sem `status`, o comportamento original permanece igual. Como o MVP só cria pagamentos pendentes e não implementa transições de estado, os demais status normalmente retornam uma lista vazia.
 
 ### Exemplo de criação
 
