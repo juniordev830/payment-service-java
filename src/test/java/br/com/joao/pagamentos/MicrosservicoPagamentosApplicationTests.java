@@ -115,4 +115,14 @@ class MicrosservicoPagamentosApplicationTests {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.moeda").exists());
     }
+
+    @Test
+    void deveRetornarErroEstruturadoParaJsonMalformado() throws Exception {
+        mockMvc.perform(post("/api/pagamentos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"valor\":49.90,"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("O corpo da requisição é inválido"))
+                .andExpect(jsonPath("$.errors.body").value("JSON inválido ou incompleto"));
+    }
 }
