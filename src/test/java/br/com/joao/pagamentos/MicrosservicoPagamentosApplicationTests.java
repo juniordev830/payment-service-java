@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -33,6 +33,32 @@ class MicrosservicoPagamentosApplicationTests {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":0,\"moeda\":\"BRL\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deveNormalizarMoedaEIgnorarStatusEnviadoPeloCliente() throws Exception {
+        mockMvc.perform(post("/api/pagamentos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"valor\":49.90,\"moeda\":\"brl\",\"status\":\"APROVADO\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.moeda").value("BRL"))
+                .andExpect(jsonPath("$.status").value("PENDENTE"));
+    }
+
+    @Test
+    void deveRejeitarMoedaForaDoFormatoDeTresLetras() throws Exception {
+        mockMvc.perform(post("/api/pagamentos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"valor\":49.90,\"moeda\":\"BRL123\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deveRejeitarValorComMaisDeDuasCasasDecimais() throws Exception {
+        mockMvc.perform(post("/api/pagamentos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"valor\":49.999,\"moeda\":\"BRL\"}"))
                 .andExpect(status().isBadRequest());
     }
 
