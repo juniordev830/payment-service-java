@@ -29,6 +29,37 @@ class MicrosservicoPagamentosApplicationTests {
 
 
     @Test
+    void devePaginarPagamentosSemExporUmaListaIlimitada() throws Exception {
+        repository.saveAndFlush(new Pagamento(new BigDecimal("10.00"), "BRL"));
+        repository.saveAndFlush(new Pagamento(new BigDecimal("20.00"), "BRL"));
+        repository.saveAndFlush(new Pagamento(new BigDecimal("30.00"), "BRL"));
+
+        mockMvc.perform(get("/api/pagamentos").param("page", "0").param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+
+        mockMvc.perform(get("/api/pagamentos").param("page", "1").param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+
+        mockMvc.perform(get("/api/pagamentos").param("page", "2").param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void deveRejeitarPaginasOuLimitesInvalidos() throws Exception {
+        for (String[] params : new String[][]{
+                {"-1", "20"}, {"100001", "20"}, {"0", "0"}, {"0", "51"}
+        }) {
+            mockMvc.perform(get("/api/pagamentos")
+                            .param("page", params[0])
+                            .param("size", params[1]))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Test
     void deveRetornarBadRequestParaPagamentoInvalido() throws Exception {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
