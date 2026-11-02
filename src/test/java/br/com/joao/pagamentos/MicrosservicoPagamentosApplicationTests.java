@@ -101,7 +101,7 @@ class MicrosservicoPagamentosApplicationTests {
     void deveRetornarDetalhesEstruturadosParaErroDeValidacao() throws Exception {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\\"valor\\":0,\\"moeda\\":\\"BRL\\"}"))
+                        .content("{\"valor\":0,\"moeda\":\"BRL\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("A requisição contém campos inválidos"))
                 .andExpect(jsonPath("$.errors.valor").exists());
@@ -111,7 +111,7 @@ class MicrosservicoPagamentosApplicationTests {
     void deveRetornarErroEstruturadoQuandoMoedaForInvalida() throws Exception {
         mockMvc.perform(post("/api/pagamentos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\\"valor\\":49.90,\\"moeda\\":\\"BRL123\\"}"))
+                        .content("{\"valor\":49.90,\"moeda\":\"BRL123\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.moeda").exists());
     }
