@@ -2,7 +2,11 @@
 
 Microsserviço demonstrativo para estudo de desenvolvimento backend com Java e Spring Boot. O projeto implementa uma API REST inicial para registrar e consultar pagamentos em banco H2, com persistência via Spring Data JPA e validação de entrada.
 
- > **Aviso:** este é um projeto de portfólio, não um sistema de pagamentos pronto para produção. Não movimenta dinheiro nem se integra a adquirentes ou gateways reais. Não envie dados de cartão ou informações financeiras reais.\n\n## Limites de segurança e acesso\n\nA API ainda **não implementa autenticação nem autorização**. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
+ > **Aviso:** este é um projeto de portfólio, não um sistema de pagamentos pronto para produção. Não movimenta dinheiro nem se integra a adquirentes ou gateways reais. Não envie dados de cartão ou informações financeiras reais.
+
+## Limites de segurança e acesso
+
+A API ainda **não implementa autenticação nem autorização**, nem limita/pagina a listagem de pagamentos. Portanto, todas as entradas de demonstração existentes podem ser listadas por qualquer cliente local que alcançar a API. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
 
 ## Tecnologias
 
@@ -99,13 +103,13 @@ No Windows PowerShell:
 .\mvnw.cmd test
 ```
 
-Os testes verificam o contexto da aplicação e a persistência básica dos pagamentos.
+A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela cobre persistência e consulta por ID, HTTP 201/400/404, normalização de moeda, rejeição de valores e moedas inválidos, impossibilidade de definir o status inicial pelo corpo da requisição e erros JSON de validação estruturados.
 
 ## Próximas etapas
 
 - Criar uma camada de serviço para separar regras de negócio do controlador.
 - Adicionar paginação e ordenação à listagem.
-- Padronizar respostas de erro de validação e de recurso não encontrado.
+- Expandir a padronização das respostas de erro (a validação e JSON malformado já possuem erros estruturados; recurso não encontrado retorna 404).
 - Implementar idempotência e transições de estado com regras explícitas.
 - Adicionar autenticação, autorização e trilha de auditoria.
 - Migrar de H2 para PostgreSQL em um ambiente de implantação.
