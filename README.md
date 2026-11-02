@@ -4,7 +4,9 @@ Microsserviço demonstrativo para estudo de desenvolvimento backend com Java e S
 
  > **Aviso:** este é um projeto de portfólio, não um sistema de pagamentos pronto para produção. Não movimenta dinheiro nem se integra a adquirentes ou gateways reais. Não envie dados de cartão ou informações financeiras reais.
 
-## Limites de segurança e acesso\n\nA API ainda **não implementa autenticação nem autorização**, nem limita/pagina a listagem de pagamentos. Portanto, todas as entradas de demonstração existentes podem ser listadas por qualquer cliente local que alcançar a API. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
+## Limites de segurança e acesso
+
+A API ainda **não implementa autenticação nem autorização**, nem limita/pagina a listagem de pagamentos. Portanto, todas as entradas de demonstração existentes podem ser listadas por qualquer cliente local que alcançar a API. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
 
 ## Tecnologias
 
