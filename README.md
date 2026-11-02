@@ -6,7 +6,7 @@ Microsserviço demonstrativo para estudo de desenvolvimento backend com Java e S
 
 ## Limites de segurança e acesso
 
-A API ainda **não implementa autenticação nem autorização**, nem limita/pagina a listagem de pagamentos. Portanto, todas as entradas de demonstração existentes podem ser listadas por qualquer cliente local que alcançar a API. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
+A API ainda **não implementa autenticação nem autorização**. A listagem agora é paginada (padrão: 20 registros; máximo: 50 por requisição), mas qualquer cliente local que alcançar o serviço ainda pode consultar as entradas de demonstração. Portanto, todas as entradas de demonstração existentes podem ser listadas por qualquer cliente local que alcançar a API. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
 
 ## Tecnologias
 
@@ -55,7 +55,7 @@ Por padrão, a aplicação inicia em `http://localhost:8080`.
 | Método | Rota | Descrição |
 |---|---|---|
 | `GET` | `/api/pagamentos/status` | Verifica se o endpoint está respondendo |
-| `GET` | `/api/pagamentos` | Lista pagamentos cadastrados |
+| `GET` | `/api/pagamentos?page=0&size=20` | Lista pagamentos por página (página a partir de 0; tamanho de 1 a 50; máximo de 100.000 páginas) |
 | `GET` | `/api/pagamentos/{id}` | Consulta um pagamento por ID |
 | `POST` | `/api/pagamentos` | Registra um pagamento com status inicial `PENDENTE` |
 
@@ -108,7 +108,7 @@ A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela
 ## Próximas etapas
 
 - Criar uma camada de serviço para separar regras de negócio do controlador.
-- Adicionar paginação e ordenação à listagem.
+- Adicionar autenticação por usuário e regras de acesso aos pagamentos antes de qualquer implantação remota.
 - Expandir a padronização das respostas de erro (a validação e JSON malformado já possuem erros estruturados; recurso não encontrado retorna 404).
 - Implementar idempotência e transições de estado com regras explícitas.
 - Adicionar autenticação, autorização e trilha de auditoria.
