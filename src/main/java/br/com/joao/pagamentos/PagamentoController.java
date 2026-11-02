@@ -3,6 +3,8 @@ package br.com.joao.pagamentos;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,9 +25,17 @@ public class PagamentoController {
         this.repository = repository;
     }
 
+    // Limits both response size and database work without changing the JSON list shape.
     @GetMapping
-    public List<Pagamento> listar() {
-        return repository.findAll();
+    public ResponseEntity<List<Pagamento>> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        if (page < 0 || page > 100_000 || size < 1 || size > 50) {
+            return ResponseEntity.badRequest().build();
+        }
+        PageRequest paging = PageRequest.of(page, size,
+                Sort.by(Sort.Order.desc("criadoEm"), Sort.Order.desc("id")));
+        return ResponseEntity.ok(repository.findAll(paging).getContent());
     }
 
     @GetMapping("/{id}")
