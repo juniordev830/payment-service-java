@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** Restricts payment data to configured service tokens; status remains public. */
+/** Authenticates every request except the exact public status endpoint. */
 @Component
 public final class PaymentAccessFilter extends OncePerRequestFilter {
     private final byte[] readToken;
@@ -27,12 +27,10 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws ServletException, IOException {
-        String path = request.getRequestURI();
-        if (!path.equals("/api/pagamentos") && !path.startsWith("/api/pagamentos/")) {
-            chain.doFilter(request, response);
-            return;
-        }
-        if (path.equals("/api/pagamentos/status") && request.getMethod().equals("GET")) {
+        // Default-deny avoids differences between raw URI and MVC route normalization
+        // (context paths, encoded characters and matrix parameters).
+        String publicStatus = request.getContextPath() + "/api/pagamentos/status";
+        if (request.getRequestURI().equals(publicStatus) && request.getMethod().equals("GET")) {
             chain.doFilter(request, response);
             return;
         }
