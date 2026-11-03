@@ -57,7 +57,7 @@ class PagamentoStatusFilterTests {
         repository.saveAndFlush(new Pagamento(new BigDecimal("10.00"), "BRL"));
         repository.saveAndFlush(new Pagamento(new BigDecimal("20.00"), "BRL"));
 
-        mockMvc.perform(get("/api/pagamentos/resumo"))
+        mockMvc.perform(get("/api/pagamentos/resumo").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total").value(2))
                 .andExpect(jsonPath("$.porStatus.PENDENTE").value(2));
