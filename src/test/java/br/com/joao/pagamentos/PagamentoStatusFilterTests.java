@@ -12,7 +12,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+    "PAYMENT_READ_TOKEN=ci-read-token-0123456789abcdef0123456789",
+    "PAYMENT_ADMIN_TOKEN=ci-admin-token-0123456789abcdef0123456789"
+})
 @AutoConfigureMockMvc
 @Transactional
 class PagamentoStatusFilterTests {
@@ -24,12 +27,12 @@ class PagamentoStatusFilterTests {
         repository.saveAndFlush(new Pagamento(new BigDecimal("10.00"), "BRL"));
         repository.saveAndFlush(new Pagamento(new BigDecimal("20.00"), "BRL"));
 
-        mockMvc.perform(get("/api/pagamentos").param("status", "PENDENTE"))
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789").param("status", "PENDENTE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].status").value("PENDENTE"));
 
-        mockMvc.perform(get("/api/pagamentos").param("status", "RECUSADO"))
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789").param("status", "RECUSADO"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -39,14 +42,14 @@ class PagamentoStatusFilterTests {
         repository.saveAndFlush(new Pagamento(new BigDecimal("10.00"), "BRL"));
         repository.saveAndFlush(new Pagamento(new BigDecimal("20.00"), "BRL"));
 
-        mockMvc.perform(get("/api/pagamentos")
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789")
                         .param("status", "PENDENTE")
                         .param("page", "1")
                         .param("size", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
 
-        mockMvc.perform(get("/api/pagamentos")
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789")
                         .param("status", "PENDENTE")
                         .param("size", "51"))
                 .andExpect(status().isBadRequest());
@@ -54,7 +57,7 @@ class PagamentoStatusFilterTests {
 
     @Test
     void rejeitaStatusDesconhecido() throws Exception {
-        mockMvc.perform(get("/api/pagamentos").param("status", "PAGO"))
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789").param("status", "PAGO"))
                 .andExpect(status().isBadRequest());
     }
 }
