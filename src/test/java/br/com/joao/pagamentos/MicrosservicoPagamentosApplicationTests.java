@@ -16,7 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+    "PAYMENT_READ_TOKEN=ci-read-token-0123456789abcdef0123456789",
+    "PAYMENT_ADMIN_TOKEN=ci-admin-token-0123456789abcdef0123456789"
+})
 @AutoConfigureMockMvc
 @Transactional
 class MicrosservicoPagamentosApplicationTests {
@@ -34,15 +37,15 @@ class MicrosservicoPagamentosApplicationTests {
         repository.saveAndFlush(new Pagamento(new BigDecimal("20.00"), "BRL"));
         repository.saveAndFlush(new Pagamento(new BigDecimal("30.00"), "BRL"));
 
-        mockMvc.perform(get("/api/pagamentos").param("page", "0").param("size", "2"))
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789").param("page", "0").param("size", "2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
 
-        mockMvc.perform(get("/api/pagamentos").param("page", "1").param("size", "2"))
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789").param("page", "1").param("size", "2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
 
-        mockMvc.perform(get("/api/pagamentos").param("page", "2").param("size", "2"))
+        mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789").param("page", "2").param("size", "2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -52,7 +55,7 @@ class MicrosservicoPagamentosApplicationTests {
         for (String[] params : new String[][]{
                 {"-1", "20"}, {"100001", "20"}, {"0", "0"}, {"0", "51"}
         }) {
-            mockMvc.perform(get("/api/pagamentos")
+            mockMvc.perform(get("/api/pagamentos").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789")
                             .param("page", params[0])
                             .param("size", params[1]))
                     .andExpect(status().isBadRequest());
@@ -61,7 +64,7 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveRetornarBadRequestParaPagamentoInvalido() throws Exception {
-        mockMvc.perform(post("/api/pagamentos")
+        mockMvc.perform(post("/api/pagamentos").header("Authorization", "Bearer ci-admin-token-0123456789abcdef0123456789")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":0,\"moeda\":\"BRL\"}"))
                 .andExpect(status().isBadRequest());
@@ -69,7 +72,7 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveNormalizarMoedaEIgnorarStatusEnviadoPeloCliente() throws Exception {
-        mockMvc.perform(post("/api/pagamentos")
+        mockMvc.perform(post("/api/pagamentos").header("Authorization", "Bearer ci-admin-token-0123456789abcdef0123456789")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":49.90,\"moeda\":\"brl\",\"status\":\"APROVADO\"}"))
                 .andExpect(status().isCreated())
@@ -79,7 +82,7 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveRejeitarMoedaForaDoFormatoDeTresLetras() throws Exception {
-        mockMvc.perform(post("/api/pagamentos")
+        mockMvc.perform(post("/api/pagamentos").header("Authorization", "Bearer ci-admin-token-0123456789abcdef0123456789")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":49.90,\"moeda\":\"BRL123\"}"))
                 .andExpect(status().isBadRequest());
@@ -87,7 +90,7 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveRejeitarValorComMaisDeDuasCasasDecimais() throws Exception {
-        mockMvc.perform(post("/api/pagamentos")
+        mockMvc.perform(post("/api/pagamentos").header("Authorization", "Bearer ci-admin-token-0123456789abcdef0123456789")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":49.999,\"moeda\":\"BRL\"}"))
                 .andExpect(status().isBadRequest());
@@ -95,13 +98,13 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveRetornarNotFoundParaPagamentoInexistente() throws Exception {
-        mockMvc.perform(get("/api/pagamentos/999999"))
+        mockMvc.perform(get("/api/pagamentos/999999").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void deveExporEndpointDeStatus() throws Exception {
-        mockMvc.perform(get("/api/pagamentos/status"))
+        mockMvc.perform(get("/api/pagamentos/status").header("Authorization", "Bearer ci-read-token-0123456789abcdef0123456789"))
                 .andExpect(status().isOk());
     }
 
@@ -130,7 +133,7 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveRetornarDetalhesEstruturadosParaErroDeValidacao() throws Exception {
-        mockMvc.perform(post("/api/pagamentos")
+        mockMvc.perform(post("/api/pagamentos").header("Authorization", "Bearer ci-admin-token-0123456789abcdef0123456789")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":0,\"moeda\":\"BRL\"}"))
                 .andExpect(status().isBadRequest())
@@ -140,7 +143,7 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveRetornarErroEstruturadoQuandoMoedaForInvalida() throws Exception {
-        mockMvc.perform(post("/api/pagamentos")
+        mockMvc.perform(post("/api/pagamentos").header("Authorization", "Bearer ci-admin-token-0123456789abcdef0123456789")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":49.90,\"moeda\":\"BRL123\"}"))
                 .andExpect(status().isBadRequest())
@@ -149,7 +152,7 @@ class MicrosservicoPagamentosApplicationTests {
 
     @Test
     void deveRetornarErroEstruturadoParaJsonMalformado() throws Exception {
-        mockMvc.perform(post("/api/pagamentos")
+        mockMvc.perform(post("/api/pagamentos").header("Authorization", "Bearer ci-admin-token-0123456789abcdef0123456789")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"valor\":49.90,"))
                 .andExpect(status().isBadRequest())

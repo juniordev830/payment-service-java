@@ -6,7 +6,9 @@ Microsserviço demonstrativo para estudo de desenvolvimento backend com Java e S
 
 ## Limites de segurança e acesso
 
-A API ainda **não implementa autenticação nem autorização**. A listagem agora é paginada (padrão: 20 registros; máximo: 50 por requisição), mas qualquer cliente local que alcançar o serviço ainda pode consultar as entradas de demonstração. Portanto, todas as entradas de demonstração existentes podem ser listadas por qualquer cliente local que alcançar a API. O servidor está configurado para escutar somente em `127.0.0.1` (`server.address=127.0.0.1`), portanto os endpoints são para uso local e não recebem conexões remotas diretamente. Não remova essa restrição nem exponha o serviço à internet antes de implementar autenticação, autorização, tratamento seguro de erros, configuração de produção e testes de segurança.
+A API exige tokens de serviço distintos para leitura e administração; veja [configuração de acesso](#acesso-aos-pagamentos). Apenas `GET /api/pagamentos/status` é público. O filtro exige autenticação por padrão em todas as demais requisições, inclusive rotas desconhecidas e variações de URL, evitando depender da interpretação do caminho bruto como fronteira de segurança. Ele também funciona quando a aplicação utiliza um context path.
+
+A listagem é paginada (padrão: 20; máximo: 50 registros). Os tokens não representam usuários e não isolam pagamentos por proprietário: qualquer portador de um token de leitura ou administração pode consultar todos os registros demonstrativos. O serviço continua limitado a `127.0.0.1`. Antes de qualquer exposição remota, faltam identidade por usuário, autorização por recurso, auditoria, TLS e configuração de produção.
 
 ## Tecnologias
 
@@ -66,6 +68,7 @@ O parâmetro opcional `status` aceita `PENDENTE`, `APROVADO`, `RECUSADO` ou `CAN
 
 ```http
 POST /api/pagamentos
+Authorization: Bearer <PAYMENT_ADMIN_TOKEN>
 Content-Type: application/json
 ```
 
@@ -106,7 +109,7 @@ No Windows PowerShell:
 .\mvnw.cmd test
 ```
 
-A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela cobre persistência e consulta por ID, HTTP 201/400/404, normalização de moeda, rejeição de valores e moedas inválidos, impossibilidade de definir o status inicial pelo corpo da requisição e erros JSON de validação estruturados.
+A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela cobre persistência e consulta por ID, HTTP 201/400/404, normalização de moeda, rejeição de valores e moedas inválidos, impossibilidade de definir o status inicial pelo corpo da requisição e erros JSON de validação estruturados. Os testes de acesso cobrem tokens ausentes/inválidos, permissões de leitura, configuração inválida, context path e variações de URI com codificação e parâmetros de matriz.
 
 ## Próximas etapas
 
@@ -114,7 +117,7 @@ A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela
 - Adicionar autenticação por usuário e regras de acesso aos pagamentos antes de qualquer implantação remota.
 - Expandir a padronização das respostas de erro (a validação e JSON malformado já possuem erros estruturados; recurso não encontrado retorna 404).
 - Implementar idempotência e transições de estado com regras explícitas.
-- Adicionar autenticação, autorização e trilha de auditoria.
+- Evoluir os tokens de serviço para identidades individuais, autorização por proprietário e trilha de auditoria.
 - Migrar de H2 para PostgreSQL em um ambiente de implantação.
 - Integrar um provedor de pagamentos em ambiente sandbox, sem armazenar dados sensíveis de cartão.
 
@@ -123,3 +126,15 @@ A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela
 João Junior — estudante de Engenharia de Software, desenvolvendo projetos práticos de backend.
 
 [GitHub: @juniordev830](https://github.com/juniordev830)
+
+
+## Acesso aos pagamentos
+
+Configure dois tokens diferentes de pelo menos 32 bytes antes de consultar ou criar pagamentos:
+
+```bash
+export PAYMENT_READ_TOKEN="substitua-por-um-token-aleatorio-com-32-bytes-ou-mais"
+export PAYMENT_ADMIN_TOKEN="use-outro-token-aleatorio-com-32-bytes-ou-mais"
+```
+
+Envie `Authorization: Bearer <token>`. O token de leitura autoriza GET e HEAD; o administrativo permite as operações implementadas, incluindo POST. Sem configuração válida, a API responde 503; credenciais ausentes ou inválidas recebem 401, e escrita com token de leitura recebe 403. `GET /api/pagamentos/status` é público. O console H2 fica desabilitado. Este protótipo continua restrito ao loopback e não deve ser publicado como serviço de pagamentos de produção sem identidade, auditoria, armazenamento e TLS adequados.
