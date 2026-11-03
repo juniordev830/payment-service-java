@@ -1,8 +1,10 @@
 package br.com.joao.pagamentos;
 
 import jakarta.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -57,6 +59,18 @@ public class PagamentoController {
         );
         Pagamento salvo = repository.save(pagamento);
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
+
+    @GetMapping("/resumo")
+    public ResponseEntity<Map<String, Object>> resumo() {
+        Map<String, Long> porStatus = new LinkedHashMap<>();
+        for (StatusPagamento status : StatusPagamento.values()) {
+            porStatus.put(status.name(), repository.countByStatus(status));
+        }
+        Map<String, Object> resposta = new LinkedHashMap<>();
+        resposta.put("total", repository.count());
+        resposta.put("porStatus", porStatus);
+        return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/status")
