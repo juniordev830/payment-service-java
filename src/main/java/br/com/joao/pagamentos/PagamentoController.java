@@ -25,17 +25,21 @@ public class PagamentoController {
         this.repository = repository;
     }
 
-    // Limits both response size and database work without changing the JSON list shape.
+    // Both filtered and unfiltered results are bounded by the same pagination.
     @GetMapping
     public ResponseEntity<List<Pagamento>> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) StatusPagamento status) {
         if (page < 0 || page > 100_000 || size < 1 || size > 50) {
             return ResponseEntity.badRequest().build();
         }
         PageRequest paging = PageRequest.of(page, size,
                 Sort.by(Sort.Order.desc("criadoEm"), Sort.Order.desc("id")));
-        return ResponseEntity.ok(repository.findAll(paging).getContent());
+        List<Pagamento> resultados = status == null
+                ? repository.findAll(paging).getContent()
+                : repository.findByStatus(status, paging).getContent();
+        return ResponseEntity.ok(resultados);
     }
 
     @GetMapping("/{id}")
