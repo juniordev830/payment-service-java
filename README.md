@@ -123,3 +123,15 @@ A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela
 João Junior — estudante de Engenharia de Software, desenvolvendo projetos práticos de backend.
 
 [GitHub: @juniordev830](https://github.com/juniordev830)
+
+
+## Acesso aos pagamentos
+
+Configure dois tokens diferentes de pelo menos 32 bytes antes de consultar ou criar pagamentos:
+
+```bash
+export PAYMENT_READ_TOKEN="substitua-por-um-token-aleatorio-com-32-bytes-ou-mais"
+export PAYMENT_ADMIN_TOKEN="use-outro-token-aleatorio-com-32-bytes-ou-mais"
+```
+
+Envie `Authorization: Bearer <token>`. O token de leitura autoriza GET; o administrativo autoriza GET e POST. Sem configuração válida, a API responde 503; credenciais ausentes ou inválidas recebem 401, e escrita com token de leitura recebe 403. `GET /api/pagamentos/status` é público. O console H2 fica desabilitado. Este protótipo continua restrito ao loopback e não deve ser publicado como serviço de pagamentos de produção sem identidade, auditoria, armazenamento e TLS adequados.
