@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public final class PaymentAccessFilter extends OncePerRequestFilter {
     private final byte[] readToken;
     private final byte[] adminToken;
+    private static final int MAX_AUTHORIZATION_HEADER_LENGTH = 8192;
 
     public PaymentAccessFilter(
             @Value("${PAYMENT_READ_TOKEN:}") String readToken,
@@ -39,7 +41,17 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Payment tokens are not configured");
             return;
         }
-        String authorization = request.getHeader("Authorization");
+        // More than one Authorization value is ambiguous across proxies and containers.
+        // Reject it even if the first value is a valid privileged token.
+        Enumeration<String> authHeaders = request.getHeaders("Authorization");
+        String authorization = authHeaders.hasMoreElements() ? authHeaders.nextElement() : null;
+        if (authHeaders.hasMoreElements()
+                || (authorization != null && (authorization.length() > MAX_AUTHORIZATION_HEADER_LENGTH
+                        || authorization.indexOf(',') >= 0))) {
+            response.setHeader("WWW-Authenticate", "Bearer");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
         byte[] supplied = authorization != null && authorization.startsWith("Bearer ")
                 ? authorization.substring(7).getBytes(StandardCharsets.UTF_8) : new byte[0];
         boolean admin = MessageDigest.isEqual(supplied, adminToken);
