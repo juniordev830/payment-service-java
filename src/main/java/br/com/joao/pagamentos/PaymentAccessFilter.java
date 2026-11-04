@@ -36,6 +36,8 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
+        // Prevent sensitive payment records and auth errors from being stored by caches.
+        response.setHeader("Cache-Control", "no-store");
         if (readToken.length < 32 || adminToken.length < 32 ||
                 MessageDigest.isEqual(readToken, adminToken)) {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Payment tokens are not configured");
