@@ -31,6 +31,33 @@ class PaymentAccessFilterTests {
     }
 
     @Test
+    void rejectsMultipleAuthorizationHeadersEvenWhenOneIsValid() throws Exception {
+        var filter = new PaymentAccessFilter(READ, ADMIN);
+        var req = new MockHttpServletRequest("POST", "/api/pagamentos");
+        req.addHeader("Authorization", "Bearer " + ADMIN);
+        req.addHeader("Authorization", "Bearer " + READ);
+        var res = new MockHttpServletResponse();
+        filter.doFilter(req, res, new MockFilterChain());
+        assertEquals(401, res.getStatus());
+        assertEquals("Bearer", res.getHeader("WWW-Authenticate"));
+    }
+
+    @Test
+    void rejectsCombinedAndOversizedAuthorizationHeaders() throws Exception {
+        var filter = new PaymentAccessFilter(READ, ADMIN);
+        for (String value : new String[]{
+                "Bearer " + ADMIN + ", Bearer " + READ,
+                "Bearer " + "x".repeat(8193)
+        }) {
+            var req = new MockHttpServletRequest("POST", "/api/pagamentos");
+            req.addHeader("Authorization", value);
+            var res = new MockHttpServletResponse();
+            filter.doFilter(req, res, new MockFilterChain());
+            assertEquals(401, res.getStatus());
+        }
+    }
+
+    @Test
     void failsClosedWithoutDistinctConfiguredSecrets() throws Exception {
         assertEquals(503, request(new PaymentAccessFilter("", ""), "GET", "/api/pagamentos", READ));
         assertEquals(503, request(new PaymentAccessFilter(READ, READ), "GET", "/api/pagamentos", READ));
