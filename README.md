@@ -10,6 +10,12 @@ A API exige tokens de serviço distintos para leitura e administração; veja [c
 
 A listagem é paginada (padrão: 20; máximo: 50 registros). Os tokens não representam usuários e não isolam pagamentos por proprietário: qualquer portador de um token de leitura ou administração pode consultar todos os registros demonstrativos. O serviço continua limitado a `127.0.0.1`. Antes de qualquer exposição remota, faltam identidade por usuário, autorização por recurso, auditoria, TLS e configuração de produção.
 
+## Política de autorização por proprietário (em desenvolvimento)
+
+A branch `feature/payment-ownership-policy-20261104` inclui a classe `PaymentOwnershipPolicy` (Java 17), que exige a coincidência entre a conta autenticada e o proprietário do pagamento **e** a permissão específica `READ` ou `CREATE`. Os testes JUnit cobrem contas diferentes, ausência de identidade e falta de permissão.
+
+**A política não está conectada aos controladores nem ao banco.** Os pagamentos existentes ainda não têm `ownerId`, os tokens atuais continuam compartilhados e a API ainda não fornece isolamento multiusuário real. Em produção, a identidade deverá vir de autenticação validada no servidor, nunca de cabeçalhos ou campos fornecidos livremente pelo cliente. Antes de publicar: autenticação, migrações, proprietário obrigatório, consultas filtradas e testes integrados entre contas distintas.
+
 ## Tecnologias
 
 - Java 17
