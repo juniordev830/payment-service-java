@@ -57,6 +57,17 @@ class PaymentAccessRouteTests {
     }
 
     @Test
+    void duplicateAuthorizationHeadersCannotAuthorizePaymentCreation() throws Exception {
+        mvc.perform(post("/api/pagamentos")
+                        .header("Authorization",
+                                "Bearer ci-admin-token-0123456789abcdef0123456789",
+                                "Bearer " + READ)
+                        .contentType("application/json")
+                        .content("{\"valor\":10.00,\"moeda\":\"BRL\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void contextPathDoesNotBypassReaderWriteRestriction() throws Exception {
         mvc.perform(post("/lab/api/pagamentos").contextPath("/lab")
                         .header("Authorization", "Bearer " + READ)
