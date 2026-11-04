@@ -40,7 +40,7 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
         response.setHeader("Cache-Control", "no-store");
         if (readToken.length < 32 || adminToken.length < 32 ||
                 MessageDigest.isEqual(readToken, adminToken)) {
-            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Payment tokens are not configured");
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service unavailable");
             return;
         }
         // More than one Authorization value is ambiguous across proxies and containers.
