@@ -58,6 +58,18 @@ class PaymentAccessFilterTests {
     }
 
     @Test
+    void paymentResponsesDoNotAllowCaching() throws Exception {
+        var filter = new PaymentAccessFilter(READ, ADMIN);
+        for (String token : new String[]{null, READ, ADMIN}) {
+            var req = new MockHttpServletRequest("GET", "/api/pagamentos");
+            if (token != null) req.addHeader("Authorization", "Bearer " + token);
+            var res = new MockHttpServletResponse();
+            filter.doFilter(req, res, new MockFilterChain());
+            assertEquals("no-store", res.getHeader("Cache-Control"));
+        }
+    }
+
+    @Test
     void failsClosedWithoutDistinctConfiguredSecrets() throws Exception {
         assertEquals(503, request(new PaymentAccessFilter("", ""), "GET", "/api/pagamentos", READ));
         assertEquals(503, request(new PaymentAccessFilter(READ, READ), "GET", "/api/pagamentos", READ));
