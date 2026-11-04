@@ -66,6 +66,8 @@ class PaymentAccessFilterTests {
             var res = new MockHttpServletResponse();
             filter.doFilter(req, res, new MockFilterChain());
             assertEquals("no-store", res.getHeader("Cache-Control"));
+            assertEquals("nosniff", res.getHeader("X-Content-Type-Options"));
+            assertEquals("no-referrer", res.getHeader("Referrer-Policy"));
         }
     }
 
