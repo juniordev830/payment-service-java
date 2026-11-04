@@ -73,5 +73,12 @@ class PaymentAccessFilterTests {
     void failsClosedWithoutDistinctConfiguredSecrets() throws Exception {
         assertEquals(503, request(new PaymentAccessFilter("", ""), "GET", "/api/pagamentos", READ));
         assertEquals(503, request(new PaymentAccessFilter(READ, READ), "GET", "/api/pagamentos", READ));
+
+        var req = new MockHttpServletRequest("GET", "/api/pagamentos");
+        var res = new MockHttpServletResponse();
+        new PaymentAccessFilter("", "").doFilter(req, res, new MockFilterChain());
+        assertEquals(503, res.getStatus());
+        assertEquals("Service unavailable", res.getErrorMessage());
+        assertEquals("no-store", res.getHeader("Cache-Control"));
     }
 }
