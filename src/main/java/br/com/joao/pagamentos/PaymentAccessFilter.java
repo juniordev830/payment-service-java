@@ -38,6 +38,8 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
         }
         // Prevent sensitive payment records and auth errors from being stored by caches.
         response.setHeader("Cache-Control", "no-store");
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        response.setHeader("Referrer-Policy", "no-referrer");
         if (readToken.length < 32 || adminToken.length < 32 ||
                 MessageDigest.isEqual(readToken, adminToken)) {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service unavailable");
