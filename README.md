@@ -10,6 +10,8 @@ A API exige tokens de serviço distintos para leitura e administração; veja [c
 
 O filtro rejeita cabeçalhos `Authorization` duplicados, valores combinados com vírgula e cabeçalhos excessivamente longos. Cada requisição protegida deve enviar um único `Authorization: Bearer <token>` válido.
 
+As respostas de rotas protegidas incluem `Cache-Control: no-store`, para reduzir o risco de armazenamento de registros sensíveis em caches intermediários.
+
 A listagem é paginada (padrão: 20; máximo: 50 registros). Os tokens não representam usuários e não isolam pagamentos por proprietário: qualquer portador de um token de leitura ou administração pode consultar todos os registros demonstrativos. O serviço continua limitado a `127.0.0.1`. Antes de qualquer exposição remota, faltam identidade por usuário, autorização por recurso, auditoria, TLS e configuração de produção.
 
 ## Tecnologias
