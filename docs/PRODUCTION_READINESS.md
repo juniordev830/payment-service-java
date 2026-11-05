@@ -20,7 +20,7 @@
 | Autorização | Leitura transversal de todos os registros | Testes negativos provam que A não lê/edita pagamento de B; consultas filtram por proprietário |
 | Transporte | Configuração atual é apenas local | TLS na borda, proxy configurado e revisão de cabeçalhos e CORS |
 | Persistência | H2 de desenvolvimento | PostgreSQL com migrações versionadas, backup, restauração testada e permissões mínimas |
-| Integridade | Repetição de POST pode gerar pagamento duplicado | Chave de idempotência persistida, com testes de concorrência e replay |
+| Integridade | Idempotência opcional e global na demo; POST sem chave ainda pode duplicar | Exigir chave por identidade, persistir com migrações, testar concorrência e retenção/replay antes de uso real |
 | Segredos | Tokens em variáveis de ambiente | Gerenciador de segredos, rotação, logs sem credenciais e procedimento de revogação |
 | Observabilidade | Ausência de plano operacional completo | Logs estruturados sem dados sensíveis, métricas, alertas e IDs de correlação |
 | Abuso | Limites de tráfego não documentados | Rate limit por identidade/IP confiável, limites de payload, timeout e testes de abuso |
@@ -31,7 +31,7 @@
 
 1. **Especificar a fronteira de confiança:** definir atores, recursos, ambientes, fluxos, ameaça de replay e escopo dos tokens. Modelar permissões antes de ampliar endpoints.
 2. **Adicionar identidade e isolamento:** introduzir proprietário em cada registro e validar acesso no serviço e nas queries. Cobrir acessos cruzados com testes MockMvc.
-3. **Tornar a criação idempotente:** persistir uma chave única por operação/identidade; mesma chave e payload retorna o mesmo resultado, payload divergente é rejeitado. Testar chamadas simultâneas.
+3. **Completar a criação idempotente:** a API demonstrativa já suporta chave única opcional, mas falta associá-la à identidade autenticada, exigi-la em operações reais, adicionar migrações e cobrir chamadas simultâneas e replay de longo prazo.
 4. **Migrar persistência com segurança:** criar migrações, índices e estratégias de retenção, executar testes com PostgreSQL real no CI e testar recuperação de backup.
 5. **Endurecer a borda:** terminar TLS, configurar proxy confiável, limites de requisição, CORS restrito e política de logs; validar cabeçalhos e erros em testes.
 6. **Validar ponta a ponta:** teste de carga controlado, falhas de banco, falha de rede, tentativas de abuso e regressão de autorização. Documentar resultados observados, não presumidos.
