@@ -57,6 +57,25 @@ class PaymentAccessRouteTests {
     }
 
     @Test
+    void rejectsAmbiguousAuthorizationAtRealHttpRoutes() throws Exception {
+        mvc.perform(get("/api/pagamentos")
+                        .header("Authorization", "Bearer " + READ, "Bearer invalid"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().string("WWW-Authenticate", "Bearer"));
+        mvc.perform(get("/api/pagamentos")
+                        .header("Authorization", "Bearer " + READ + ",Bearer invalid"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/pagamentos")
+                        .header("Authorization", "Bearer " + "x".repeat(8193)))
+                .andExpect(status().isUnauthorized());
+
+        // A single regular header remains accepted.
+        mvc.perform(get("/api/pagamentos")
+                        .header("Authorization", "Bearer " + READ))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void contextPathDoesNotBypassReaderWriteRestriction() throws Exception {
         mvc.perform(post("/lab/api/pagamentos").contextPath("/lab")
                         .header("Authorization", "Bearer " + READ)
