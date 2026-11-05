@@ -1,6 +1,8 @@
 package br.com.joao.pagamentos;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -13,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,10 +57,14 @@ public class PagamentoController {
     @PostMapping
     public ResponseEntity<Pagamento> criar(
             @Valid @RequestBody CriarPagamentoRequest request,
-            @RequestHeader(name = "Idempotency-Key", required = false) String key) {
-        // Optional for backward compatibility. Callers sending a key must use a
-        // bounded opaque identifier; do not use passwords or personal data.
-        if (key != null && !key.matches("[A-Za-z0-9_-]{16,64}")) {
+            HttpServletRequest http) {
+        // Reject ambiguous duplicate headers, including when intermediaries
+        // would otherwise pick the first Idempotency-Key value.
+        Enumeration<String> keys = http.getHeaders("Idempotency-Key");
+        String key = keys.hasMoreElements() ? keys.nextElement() : null;
+        // Optional for backward compatibility. Never accept secrets or PII
+        // as idempotency keys, or a combined comma-separated header.
+        if (keys.hasMoreElements() || (key != null && !key.matches("[A-Za-z0-9_-]{16,64}"))) {
             return ResponseEntity.badRequest().build();
         }
 
