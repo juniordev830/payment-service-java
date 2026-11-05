@@ -64,6 +64,21 @@ Por padrão, a aplicação inicia em `http://localhost:8080`.
 
 O parâmetro opcional `status` aceita `PENDENTE`, `APROVADO`, `RECUSADO` ou `CANCELADO`, com letras maiúsculas. Um valor desconhecido retorna HTTP `400 Bad Request`. O filtro usa a consulta paginada no banco; sem `status`, o comportamento original permanece igual. Como o MVP só cria pagamentos pendentes e não implementa transições de estado, os demais status normalmente retornam uma lista vazia.
 
+### Criação idempotente (opt-in no protótipo)
+
+Ao enviar `Idempotency-Key` na criação, o serviço salva um identificador **opaco e não secreto** de 16 a 64 caracteres ASCII (`A-Z`, `a-z`, `0-9`, `_` e `-`). Uma repetição com a mesma chave, valor e moeda normalizada retorna o pagamento original (HTTP 200) em vez de inserir outro. Reutilizar a mesma chave com outro valor ou moeda retorna HTTP 409. Uma chave inválida retorna HTTP 400.
+
+```http
+POST /api/pagamentos
+Authorization: Bearer <PAYMENT_ADMIN_TOKEN>
+Idempotency-Key: example-payment-request-0001
+Content-Type: application/json
+```
+
+O banco aplica uma restrição **única** à chave para impedir que duas solicitações simultâneas criem registros duplicados com a mesma chave. Para preservar clientes demonstrativos existentes, o cabeçalho ainda é **opcional**: solicitações sem chave continuam criando registros novos a cada chamada. A unicidade é global nesta instalação local, pois o projeto ainda não tem identidade/proprietário por pagamento. Não use dados pessoais, credenciais ou valores secretos nessa chave.
+
+Esta proteção é apenas um **primeiro passo** e não certifica um processador financeiro de produção: faltam identidade e isolamento por proprietário, persistência com migrações, conciliação e políticas de reprocessamento.
+
 ### Exemplo de criação
 
 ```http
@@ -116,7 +131,7 @@ A suíte JUnit 5 executa testes com Spring Boot, MockMvc e repositório JPA. Ela
 - Criar uma camada de serviço para separar regras de negócio do controlador.
 - Adicionar autenticação por usuário e regras de acesso aos pagamentos antes de qualquer implantação remota.
 - Expandir a padronização das respostas de erro (a validação e JSON malformado já possuem erros estruturados; recurso não encontrado retorna 404).
-- Implementar idempotência e transições de estado com regras explícitas.
+- Evoluir a idempotência opcional para chaves escopadas por identidade autenticada e política de retenção; implementar transições de estado explícitas.
 - Evoluir os tokens de serviço para identidades individuais, autorização por proprietário e trilha de auditoria.
 - Migrar de H2 para PostgreSQL em um ambiente de implantação.
 - Integrar um provedor de pagamentos em ambiente sandbox, sem armazenar dados sensíveis de cartão.
