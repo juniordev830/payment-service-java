@@ -66,7 +66,7 @@ O parâmetro opcional `status` aceita `PENDENTE`, `APROVADO`, `RECUSADO` ou `CAN
 
 ### Criação idempotente (opt-in no protótipo)
 
-Ao enviar `Idempotency-Key` na criação, o serviço salva um identificador **opaco e não secreto** de 16 a 64 caracteres ASCII (`A-Z`, `a-z`, `0-9`, `_` e `-`). Uma repetição com a mesma chave, valor e moeda normalizada retorna o pagamento original (HTTP 200) em vez de inserir outro. Reutilizar a mesma chave com outro valor ou moeda retorna HTTP 409. Uma chave inválida retorna HTTP 400.
+Ao enviar `Idempotency-Key` na criação, o serviço salva um identificador **opaco e não secreto** de 16 a 64 caracteres ASCII (`A-Z`, `a-z`, `0-9`, `_` e `-`). Uma repetição com a mesma chave, valor e moeda normalizada retorna o pagamento original (HTTP 200) em vez de inserir outro. O servidor aceita **somente um cabeçalho `Idempotency-Key`** e rejeita duplicados ou valores combinados por vírgula com HTTP 400. Reutilizar a mesma chave com outro valor ou moeda retorna HTTP 409. Uma chave inválida retorna HTTP 400.
 
 ```http
 POST /api/pagamentos
