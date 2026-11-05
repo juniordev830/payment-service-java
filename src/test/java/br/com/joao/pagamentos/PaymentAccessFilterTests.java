@@ -6,6 +6,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PaymentAccessFilterTests {
     private static final String READ = "ci-read-token-0123456789abcdef0123456789";
@@ -35,7 +36,7 @@ class PaymentAccessFilterTests {
         var filter = new PaymentAccessFilter(READ, ADMIN);
         String[] badHeaders = {
             "Bearer " + ADMIN + ", Bearer " + READ,
-            "Bearer " + ADMIN + "\\tignored",
+            "Bearer " + ADMIN + "\tignored",
             "Bearer " + "x".repeat(8193),
         };
         for (String value : badHeaders) {
@@ -45,7 +46,7 @@ class PaymentAccessFilterTests {
             var chain = new MockFilterChain();
             filter.doFilter(req, res, chain);
             assertEquals(401, res.getStatus(), "Header rejected: " + value.length());
-            assertEquals(null, chain.getRequest(), "Rejected request reached the controller");
+            assertNull(chain.getRequest(), "Rejected request reached the controller");
         }
 
         var duplicate = new MockHttpServletRequest("POST", "/api/pagamentos");
@@ -55,7 +56,7 @@ class PaymentAccessFilterTests {
         var chain = new MockFilterChain();
         filter.doFilter(duplicate, denied, chain);
         assertEquals(401, denied.getStatus());
-        assertEquals(null, chain.getRequest());
+        assertNull(chain.getRequest());
 
         assertEquals(200, request(filter, "POST", "/api/pagamentos", ADMIN));
         assertEquals(200, request(filter, "GET", "/api/pagamentos", READ));
