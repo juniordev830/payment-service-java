@@ -33,13 +33,22 @@ public class Pagamento {
     @Column(nullable = false, updatable = false)
     private Instant criadoEm;
 
+    // Optional, non-secret replay identifier; unique in the local demo store.
+    @Column(name = "idempotency_key", unique = true, length = 64, updatable = false)
+    private String idempotencyKey;
+
     protected Pagamento() {
         // Construtor exigido pelo JPA.
     }
 
     public Pagamento(BigDecimal valor, String moeda) {
+        this(valor, moeda, null);
+    }
+
+    public Pagamento(BigDecimal valor, String moeda, String idempotencyKey) {
         this.valor = valor;
         this.moeda = moeda;
+        this.idempotencyKey = idempotencyKey;
         this.status = StatusPagamento.PENDENTE;
     }
 
