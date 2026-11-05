@@ -93,6 +93,25 @@ class PagamentoIdempotencyTests {
     }
 
     @Test
+    void duplicateOrCombinedIdempotencyHeadersAreRejected() throws Exception {
+        mvc.perform(post("/api/pagamentos")
+                        .header("Authorization", ADMIN)
+                        .header("Idempotency-Key", KEY, "sample-payment-request-0002")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"valor\":49.90,\"moeda\":\"BRL\"}"))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(post("/api/pagamentos")
+                        .header("Authorization", ADMIN)
+                        .header("Idempotency-Key", KEY + ", sample-payment-request-0002")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"valor\":49.90,\"moeda\":\"BRL\"}"))
+                .andExpect(status().isBadRequest());
+
+        assertEquals(0, repository.count());
+    }
+
+    @Test
     void existingDemoClientsWithoutKeyRemainCompatible() throws Exception {
         for (int i = 0; i < 2; i++) {
             mvc.perform(post("/api/pagamentos")
