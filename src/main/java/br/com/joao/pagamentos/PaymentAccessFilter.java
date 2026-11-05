@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Enumeration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -39,7 +40,21 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Payment tokens are not configured");
             return;
         }
-        String authorization = request.getHeader("Authorization");
+        // Require one unambiguous Authorization field. Reverse proxies can
+        // disagree over whether to select the first/last duplicate header.
+        Enumeration<String> authorizationValues = request.getHeaders("Authorization");
+        String authorization = authorizationValues.hasMoreElements()
+                ? authorizationValues.nextElement() : null;
+        if (authorizationValues.hasMoreElements() ||
+                (authorization != null && (authorization.length() > 8192 ||
+                        authorization.indexOf(',') >= 0 ||
+                        authorization.indexOf('\\r') >= 0 ||
+                        authorization.indexOf('\\n') >= 0 ||
+                        authorization.indexOf('\\t') >= 0))) {
+            response.setHeader("WWW-Authenticate", "Bearer");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
         byte[] supplied = authorization != null && authorization.startsWith("Bearer ")
                 ? authorization.substring(7).getBytes(StandardCharsets.UTF_8) : new byte[0];
         boolean admin = MessageDigest.isEqual(supplied, adminToken);
