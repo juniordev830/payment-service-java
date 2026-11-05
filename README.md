@@ -6,7 +6,7 @@ Microsserviço demonstrativo para estudo de desenvolvimento backend com Java e S
 
 ## Limites de segurança e acesso
 
-A API exige tokens de serviço distintos para leitura e administração; veja [configuração de acesso](#acesso-aos-pagamentos). Apenas `GET /api/pagamentos/status` é público. O filtro exige autenticação por padrão em todas as demais requisições, inclusive rotas desconhecidas e variações de URL, evitando depender da interpretação do caminho bruto como fronteira de segurança. Ele também funciona quando a aplicação utiliza um context path.
+A API exige tokens de serviço distintos para leitura e administração; veja [configuração de acesso](#acesso-aos-pagamentos). Para evitar interpretações conflitantes entre intermediários HTTP, a API exige **um único** cabeçalho `Authorization: Bearer ...` nas rotas protegidas; duplicados, valores combinados por vírgula, caracteres de controle e cabeçalhos acima de 8.192 caracteres recebem HTTP 401. Apenas `GET /api/pagamentos/status` é público. O filtro exige autenticação por padrão em todas as demais requisições, inclusive rotas desconhecidas e variações de URL, evitando depender da interpretação do caminho bruto como fronteira de segurança. Ele também funciona quando a aplicação utiliza um context path.
 
 A listagem é paginada (padrão: 20; máximo: 50 registros). Os tokens não representam usuários e não isolam pagamentos por proprietário: qualquer portador de um token de leitura ou administração pode consultar todos os registros demonstrativos. O serviço continua limitado a `127.0.0.1`. Antes de qualquer exposição remota, faltam identidade por usuário, autorização por recurso, auditoria, TLS e configuração de produção.
 
