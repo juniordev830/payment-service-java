@@ -51,7 +51,10 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
         String authorization = authHeaders.hasMoreElements() ? authHeaders.nextElement() : null;
         if (authHeaders.hasMoreElements()
                 || (authorization != null && (authorization.length() > MAX_AUTHORIZATION_HEADER_LENGTH
-                        || authorization.indexOf(',') >= 0))) {
+                        || authorization.indexOf(',') >= 0
+                        || authorization.indexOf('\r') >= 0
+                        || authorization.indexOf('\n') >= 0
+                        || authorization.indexOf('\t') >= 0))) {
             response.setHeader("WWW-Authenticate", "Bearer");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
