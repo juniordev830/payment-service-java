@@ -47,6 +47,9 @@ class PaymentAccessFilterTests {
         var filter = new PaymentAccessFilter(READ, ADMIN);
         for (String value : new String[]{
                 "Bearer " + ADMIN + ", Bearer " + READ,
+                "Bearer " + ADMIN + "\tignored",
+                "Bearer " + ADMIN + "\rignored",
+                "Bearer " + ADMIN + "\nignored",
                 "Bearer " + "x".repeat(8193)
         }) {
             var req = new MockHttpServletRequest("POST", "/api/pagamentos");
