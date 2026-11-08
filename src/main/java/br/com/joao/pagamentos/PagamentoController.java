@@ -1,6 +1,7 @@
 package br.com.joao.pagamentos;
 
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -71,6 +72,23 @@ public class PagamentoController {
         resposta.put("total", repository.count());
         resposta.put("porStatus", porStatus);
         return ResponseEntity.ok(resposta);
+    }
+
+    /**
+     * Read-only sum of registered payments in a single currency.
+     * This includes PENDING records and must not be interpreted as revenue.
+     */
+    @GetMapping("/resumo/moeda")
+    public ResponseEntity<ResumoMoedaResponse> resumoPorMoeda(
+            @RequestParam(required = false) String moeda) {
+        if (moeda == null || !moeda.matches("(?i)[a-z]{3}")) {
+            return ResponseEntity.badRequest().build();
+        }
+        String codigo = moeda.toUpperCase(Locale.ROOT);
+        Object[] totals = repository.summarizeRegisteredByCurrency(codigo);
+        long quantidade = ((Number) totals[0]).longValue();
+        BigDecimal valor = totals[1] == null ? BigDecimal.ZERO : (BigDecimal) totals[1];
+        return ResponseEntity.ok(new ResumoMoedaResponse(codigo, quantidade, valor));
     }
 
     @GetMapping("/status")
