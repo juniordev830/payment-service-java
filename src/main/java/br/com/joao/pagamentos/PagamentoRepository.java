@@ -1,5 +1,6 @@
 package br.com.joao.pagamentos;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,5 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
 
     /** One aggregate query, so count and sum refer to the same database snapshot. */
     @Query("select count(p), sum(p.valor) from Pagamento p where p.moeda = :moeda")
-    Object[] summarizeRegisteredByCurrency(@Param("moeda") String moeda);
+    List<Object[]> summarizeRegisteredByCurrency(@Param("moeda") String moeda);
 }
