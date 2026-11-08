@@ -85,7 +85,7 @@ public class PagamentoController {
             return ResponseEntity.badRequest().build();
         }
         String codigo = moeda.toUpperCase(Locale.ROOT);
-        Object[] totals = repository.summarizeRegisteredByCurrency(codigo);
+        Object[] totals = repository.summarizeRegisteredByCurrency(codigo).get(0);
         long quantidade = ((Number) totals[0]).longValue();
         BigDecimal valor = totals[1] == null ? BigDecimal.ZERO : (BigDecimal) totals[1];
         return ResponseEntity.ok(new ResumoMoedaResponse(codigo, quantidade, valor));
