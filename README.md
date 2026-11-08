@@ -138,3 +138,20 @@ export PAYMENT_ADMIN_TOKEN="use-outro-token-aleatorio-com-32-bytes-ou-mais"
 ```
 
 Envie `Authorization: Bearer <token>`. O token de leitura autoriza GET e HEAD; o administrativo permite as operações implementadas, incluindo POST. Sem configuração válida, a API responde 503; credenciais ausentes ou inválidas recebem 401, e escrita com token de leitura recebe 403. `GET /api/pagamentos/status` é público. O console H2 fica desabilitado. Este protótipo continua restrito ao loopback e não deve ser publicado como serviço de pagamentos de produção sem identidade, auditoria, armazenamento e TLS adequados.
+
+
+### Resumo por moeda (novo)
+
+A API dispõe de **`GET /api/pagamentos/resumo/moeda?moeda=BRL`**, protegido pelo mesmo token de leitura das consultas existentes. A moeda precisa conter exatamente três letras ASCII (maiúsculas ou minúsculas). O resultado inclui:
+
+```json
+{
+  "moeda": "BRL",
+  "quantidade": 2,
+  "valorTotalRegistrado": 30.50
+}
+```
+
+Os valores acima são **apenas ilustrativos**. A consulta faz a contagem e soma em uma única operação de agregação no banco; moedas sem registros retornam quantidade e valor zero. Parâmetros inválidos retornam HTTP 400, e ausência de autenticação retorna HTTP 401.
+
+**Importante:** `valorTotalRegistrado` soma os registros de todos os status, inclusive **PENDENTE**. Não representa receitas liquidadas, saldo bancário nem dinheiro recebido. O projeto não cobra ou transfere recursos; é uma API educacional com H2.
