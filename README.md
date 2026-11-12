@@ -155,3 +155,7 @@ A API dispõe de **`GET /api/pagamentos/resumo/moeda?moeda=BRL`**, protegido pel
 Os valores acima são **apenas ilustrativos**. A consulta faz a contagem e soma em uma única operação de agregação no banco; moedas sem registros retornam quantidade e valor zero. Parâmetros inválidos retornam HTTP 400, e ausência de autenticação retorna HTTP 401.
 
 **Importante:** `valorTotalRegistrado` soma os registros de todos os status, inclusive **PENDENTE**. Não representa receitas liquidadas, saldo bancário nem dinheiro recebido. O projeto não cobra ou transfere recursos; é uma API educacional com H2.
+
+## Validação e manutenção
+
+Consulte o [guia técnico de validação](docs/GUIA_DE_VALIDACAO.md) antes de alterar o código: ele reúne os comandos, casos de regressão e limites atuais do projeto.
