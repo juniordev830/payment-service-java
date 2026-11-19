@@ -58,4 +58,11 @@ public class Pagamento {
     public String getMoeda() { return moeda; }
     public StatusPagamento getStatus() { return status; }
     public Instant getCriadoEm() { return criadoEm; }
+
+    boolean registrarDesfecho(StatusPagamento desfecho) {
+        if (status == desfecho) return true;
+        if (status != StatusPagamento.PENDENTE) return false;
+        status = desfecho;
+        return true;
+    }
 }
