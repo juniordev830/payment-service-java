@@ -61,8 +61,9 @@ Por padrão, a aplicação inicia em `http://localhost:8080`.
 | `GET` | `/api/pagamentos?status=PENDENTE&page=0&size=20` | Filtra por status e mantém a mesma paginação e ordenação |
 | `GET` | `/api/pagamentos/{id}` | Consulta um pagamento por ID |
 | `POST` | `/api/pagamentos` | Registra um pagamento com status inicial `PENDENTE` |
+| `PUT` | `/api/pagamentos/{id}/status` | Registra um desfecho demonstrativo com token de administração |
 
-O parâmetro opcional `status` aceita `PENDENTE`, `APROVADO`, `RECUSADO` ou `CANCELADO`, com letras maiúsculas. Um valor desconhecido retorna HTTP `400 Bad Request`. O filtro usa a consulta paginada no banco; sem `status`, o comportamento original permanece igual. Como o MVP só cria pagamentos pendentes e não implementa transições de estado, os demais status normalmente retornam uma lista vazia.
+O parâmetro opcional `status` aceita `PENDENTE`, `APROVADO`, `RECUSADO` ou `CANCELADO`, com letras maiúsculas. Um valor desconhecido retorna HTTP `400 Bad Request`. O filtro usa a consulta paginada no banco.
 
 ### Exemplo de criação
 
@@ -93,7 +94,7 @@ Cada registro contém:
 - `status`: `PENDENTE`, `APROVADO`, `RECUSADO` ou `CANCELADO`.
 - `criadoEm`: data/hora de criação em UTC.
 
-Os estados adicionais são apenas valores do modelo neste estágio; não existe ainda fluxo de aprovação, cancelamento ou integração com um provedor.
+Para registrar um desfecho, envie `{"status":"APROVADO"}` à rota `PUT /api/pagamentos/{id}/status` com o token de administração. Os desfechos aceitos são `APROVADO`, `RECUSADO` e `CANCELADO`. Repetir o mesmo desfecho retorna `200 OK`. Tentar trocar um desfecho já registrado retorna `409 Conflict`. O status representa uma decisão simulada neste serviço.
 
 ## Testes
 
