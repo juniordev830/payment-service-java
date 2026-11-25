@@ -35,4 +35,29 @@ class PaymentAccessFilterTests {
         assertEquals(503, request(new PaymentAccessFilter("", ""), "GET", "/api/pagamentos", READ));
         assertEquals(503, request(new PaymentAccessFilter(READ, READ), "GET", "/api/pagamentos", READ));
     }
+    @Test
+    void rejectsDuplicateAuthorizationAndAcceptsCaseInsensitiveScheme() throws Exception {
+        var filter = new PaymentAccessFilter(READ, ADMIN);
+        var duplicate = new MockHttpServletRequest("GET", "/api/pagamentos");
+        duplicate.addHeader("Authorization", "Bearer " + READ);
+        duplicate.addHeader("Authorization", "Bearer " + ADMIN);
+        var rejected = new MockHttpServletResponse();
+        filter.doFilter(duplicate, rejected, new MockFilterChain());
+        assertEquals(401, rejected.getStatus());
+        assertEquals("no-store", rejected.getHeader("Cache-Control"));
+
+        var valid = new MockHttpServletRequest("GET", "/api/pagamentos");
+        valid.addHeader("Authorization", "bEaReR " + READ);
+        var accepted = new MockHttpServletResponse();
+        filter.doFilter(valid, accepted, new MockFilterChain());
+        assertEquals(200, accepted.getStatus());
+        assertEquals("no-store", accepted.getHeader("Cache-Control"));
+        assertEquals("nosniff", accepted.getHeader("X-Content-Type-Options"));
+    }
+
+    @Test
+    void rejectsOversizedCredential() throws Exception {
+        var filter = new PaymentAccessFilter(READ, ADMIN);
+        assertEquals(401, request(filter, "GET", "/api/pagamentos", "x".repeat(8193)));
+    }
 }
