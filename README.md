@@ -138,7 +138,7 @@ export PAYMENT_READ_TOKEN="substitua-por-um-token-aleatorio-com-32-bytes-ou-mais
 export PAYMENT_ADMIN_TOKEN="use-outro-token-aleatorio-com-32-bytes-ou-mais"
 ```
 
-Envie `Authorization: Bearer <token>`. O token de leitura autoriza GET e HEAD; o administrativo permite as operações implementadas, incluindo POST. Sem configuração válida, a API responde 503; credenciais ausentes ou inválidas recebem 401, e escrita com token de leitura recebe 403. `GET /api/pagamentos/status` é público. O console H2 fica desabilitado. Este protótipo continua restrito ao loopback e não deve ser publicado como serviço de pagamentos de produção sem identidade, auditoria, armazenamento e TLS adequados.
+Envie exatamente um cabeçalho `Authorization: Bearer <token>`. Cabeçalhos duplicados ou acima de 8192 caracteres são rejeitados; o nome do esquema Bearer não diferencia maiúsculas e minúsculas. Respostas de rotas protegidas recebem `Cache-Control: no-store` e `X-Content-Type-Options: nosniff`. O token de leitura autoriza GET e HEAD; o administrativo permite as operações implementadas, incluindo POST. Sem configuração válida, a API responde 503; credenciais ausentes ou inválidas recebem 401, e escrita com token de leitura recebe 403. `GET /api/pagamentos/status` é público. O console H2 fica desabilitado. Este protótipo continua restrito ao loopback e não deve ser publicado como serviço de pagamentos de produção sem identidade, auditoria, armazenamento e TLS adequados.
 
 
 ### Resumo por moeda (novo)
