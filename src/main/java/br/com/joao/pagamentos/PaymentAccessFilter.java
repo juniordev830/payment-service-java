@@ -34,13 +34,20 @@ public final class PaymentAccessFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("X-Content-Type-Options", "nosniff");
         if (readToken.length < 32 || adminToken.length < 32 ||
                 MessageDigest.isEqual(readToken, adminToken)) {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Payment tokens are not configured");
             return;
         }
-        String authorization = request.getHeader("Authorization");
-        byte[] supplied = authorization != null && authorization.startsWith("Bearer ")
+        var headers = request.getHeaders("Authorization");
+        String authorization = headers != null && headers.hasMoreElements() ? headers.nextElement() : null;
+        if (headers != null && headers.hasMoreElements()) {
+            authorization = null;
+        }
+        byte[] supplied = authorization != null && authorization.length() <= 8192
+                && authorization.regionMatches(true, 0, "Bearer ", 0, 7)
                 ? authorization.substring(7).getBytes(StandardCharsets.UTF_8) : new byte[0];
         boolean admin = MessageDigest.isEqual(supplied, adminToken);
         boolean reader = MessageDigest.isEqual(supplied, readToken);
