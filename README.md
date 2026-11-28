@@ -1,5 +1,7 @@
 # Payment Service Java
 
+**Navegação** · [Limites de segurança e acesso](#limites-de-segurança-e-acesso) · [Tecnologias](#tecnologias) · [Requisitos](#requisitos) · [Código e estudo](docs/ENGENHARIA_REVERSA.md) · [API](docs/API.md)
+
 Microsserviço demonstrativo para estudo de desenvolvimento backend com Java e Spring Boot. O projeto implementa uma API REST inicial para registrar e consultar pagamentos em banco H2, com persistência via Spring Data JPA e validação de entrada.
 
  > **Aviso:** este é um projeto de portfólio, não um sistema de pagamentos pronto para produção. Não movimenta dinheiro nem se integra a adquirentes ou gateways reais. Não envie dados de cartão ou informações financeiras reais.
@@ -160,3 +162,7 @@ Os valores acima são **apenas ilustrativos**. A consulta faz a contagem e soma 
 ## Validação e manutenção
 
 Consulte o [guia técnico de validação](docs/GUIA_DE_VALIDACAO.md) antes de alterar o código: ele reúne os comandos, casos de regressão e limites atuais do projeto.
+
+## Código e roteiro de estudo
+
+Como você preservaria os valores monetários ao adicionar uma nova moeda? O [guia de engenharia reversa](docs/ENGENHARIA_REVERSA.md) reúne o mapa dos módulos e uma pergunta técnica baseada no projeto.
